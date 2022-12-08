@@ -18,8 +18,8 @@
     self = [super init];
     if (self) {
         userDefaults = defaults;
-        NSString *modifierFlagString = [userDefaults stringForKey:MODIFIER_FLAGS_DEFAULTS_KEY];
-        if (modifierFlagString == nil) {
+        NSString *moveModifierFlagString = [userDefaults stringForKey:MOVE_MODIFIER_FLAGS_DEFAULTS_KEY];
+        if (moveModifierFlagString == nil) {
             // ensure our defaults are initialized
             [self setToDefaults];
         }
@@ -29,15 +29,30 @@
             if (disabledApps == nil) {
                 [userDefaults setObject:[NSDictionary dictionary] forKey:DISABLED_APPS_DEFAULTS_KEY];
             }
+            // Move mouse button added in update
+            NSString *moveMouseButtonString = [userDefaults stringForKey:MOVE_MOUSE_BUTTON_DEFAULTS_KEY];
+            if (moveMouseButtonString == nil) {
+                [self setMoveMouseButtonToDefault];
+            }
+            // Resize modifiers added in update
+            NSString *resizeModifierFlagString = [userDefaults stringForKey:RESIZE_MODIFIER_FLAGS_DEFAULTS_KEY];
+            if (resizeModifierFlagString == nil) {
+                [self setResizeModifiersToDefault];
+            }
+            // Resize mouse button added in update
+            NSString *resizeMouseButtonString = [userDefaults stringForKey:RESIZE_MOUSE_BUTTON_DEFAULTS_KEY];
+            if (resizeMouseButtonString == nil) {
+                [self setResizeMouseButtonToDefault];
+            }
         }
     }
     return self;
 }
 
-- (int)modifierFlags {
+- (int)modifierFlagsWithDefaultsKey:(NSString*)defaultsKey {
     int modifierFlags = 0;
     
-    NSString *modifierFlagString = [userDefaults stringForKey:MODIFIER_FLAGS_DEFAULTS_KEY];
+    NSString *modifierFlagString = [userDefaults stringForKey:defaultsKey];
     if (modifierFlagString == nil) {
         return DEFAULT_MODIFIER_FLAGS;
     }
@@ -47,15 +62,23 @@
     return modifierFlags;
 }
 
-- (void)setModifierFlagString:(NSString *)flagString {
-    flagString = [[flagString stringByReplacingOccurrencesOfString:@" " withString:@""] uppercaseString];
-    [userDefaults setObject:flagString forKey:MODIFIER_FLAGS_DEFAULTS_KEY];
+- (int)moveModifierFlags {
+    return [self modifierFlagsWithDefaultsKey:MOVE_MODIFIER_FLAGS_DEFAULTS_KEY];
 }
 
+- (int)resizeModifierFlags {
+    return [self modifierFlagsWithDefaultsKey:RESIZE_MODIFIER_FLAGS_DEFAULTS_KEY];
+}
 
-- (void)setModifierKey:(NSString *)singleFlagString enabled:(BOOL)enabled {
+- (void)setModifierFlagString:(NSString *)flagString defaultsKey:(NSString *)defaultsKey {
+    flagString = [[flagString stringByReplacingOccurrencesOfString:@" " withString:@""] uppercaseString];
+    [userDefaults setObject:flagString forKey:defaultsKey];
+}
+
+- (void)setModifierKey:(NSString*)singleFlagString enabled:(BOOL)enabled defaultsKey:(NSString*)defaultsKey
+{
     singleFlagString = [singleFlagString uppercaseString];
-    NSString *modifierFlagString = [userDefaults stringForKey:MODIFIER_FLAGS_DEFAULTS_KEY];
+    NSString *modifierFlagString = [userDefaults stringForKey:defaultsKey];
     if (modifierFlagString == nil) {
         NSLog(@"Unexpected null... this should always have a value");
         [self setToDefaults];
@@ -67,11 +90,58 @@
     else {
         [flagSet removeObject:singleFlagString];
     }
-    [self setModifierFlagString:[[flagSet allObjects] componentsJoinedByString:@","]];
+    [self setModifierFlagString:[[flagSet allObjects] componentsJoinedByString:@","] defaultsKey:defaultsKey];
 }
 
-- (NSSet*)getFlagStringSet {
-    NSString *modifierFlagString = [userDefaults stringForKey:MODIFIER_FLAGS_DEFAULTS_KEY];
+- (void)setMoveModifierKey:(NSString *)singleFlagString enabled:(BOOL)enabled {
+    [self setModifierKey:singleFlagString enabled:enabled defaultsKey:MOVE_MODIFIER_FLAGS_DEFAULTS_KEY];
+}
+
+- (void)setResizeModifierKey:(NSString*)singleFlagString enabled:(BOOL)enabled {
+    [self setModifierKey:singleFlagString enabled:enabled defaultsKey:RESIZE_MODIFIER_FLAGS_DEFAULTS_KEY];
+}
+
+- (void)setMouseButton:(NSString *)mouseButtonString defaultsKey:(NSString*)defaultsKey
+{
+    mouseButtonString = [mouseButtonString uppercaseString];
+    mouseButtonString = [mouseButtonString componentsSeparatedByString:@" "][1];
+    NSString *defaultsKeyString = [userDefaults stringForKey:defaultsKey];
+    if (defaultsKeyString == nil) {
+        NSLog(@"Unexpected null... this should always have a value");
+        [self setToDefaults];
+    }
+    
+    [userDefaults setObject:mouseButtonString forKey:defaultsKey];
+}
+
+- (void)setMoveMouseButton:(NSString *)mouseButtonString {
+    [self setMouseButton:mouseButtonString defaultsKey:MOVE_MOUSE_BUTTON_DEFAULTS_KEY];
+}
+
+- (void)setResizeMouseButton:(NSString *)mouseButtonString {
+    [self setMouseButton:mouseButtonString defaultsKey:RESIZE_MOUSE_BUTTON_DEFAULTS_KEY];
+}
+
+- (NSString*)getMouseButtonWithDefaultsKey:(NSString*)defaultsKey {
+    NSString *mouseButtonString = [userDefaults stringForKey:defaultsKey];
+    if (mouseButtonString == nil) {
+        NSLog(@"Unexpected null... this should always have a value");
+        [self setToDefaults];
+    }
+    
+    return [userDefaults stringForKey:defaultsKey];
+}
+
+- (NSString*)getMoveMouseButton {
+    return [self getMouseButtonWithDefaultsKey:MOVE_MOUSE_BUTTON_DEFAULTS_KEY];
+}
+
+- (NSString*)getResizeMouseButton {
+    return [self getMouseButtonWithDefaultsKey:RESIZE_MOUSE_BUTTON_DEFAULTS_KEY];
+}
+
+- (NSSet*)getFlagStringSetWithDefaultsKey:(NSString*)defaultsKey {
+    NSString *modifierFlagString = [userDefaults stringForKey:defaultsKey];
     if (modifierFlagString == nil) {
         NSLog(@"Unexpected null... this should always have a value");
         [self setToDefaults];
@@ -80,11 +150,19 @@
     return flagSet;
 }
 
+- (NSSet*)getMoveFlagStringSet {
+    return [self getFlagStringSetWithDefaultsKey:MOVE_MODIFIER_FLAGS_DEFAULTS_KEY];
+}
+
+- (NSSet*)getResizeFlagStringSet {
+    return [self getFlagStringSetWithDefaultsKey:RESIZE_MODIFIER_FLAGS_DEFAULTS_KEY];
+}
+
 - (NSDictionary*) getDisabledApps {
     return [userDefaults dictionaryForKey:DISABLED_APPS_DEFAULTS_KEY];
 }
 
-- (void) setDisabledForApp:(NSString*)bundleIdentifier withLocalizedName:(NSString*)localizedName disabled:(BOOL)disabled {    NSMutableDictionary *disabledApps = [[self getDisabledApps] mutableCopy];
+- (void)setDisabledForApp:(NSString*)bundleIdentifier withLocalizedName:(NSString*)localizedName disabled:(BOOL)disabled {    NSMutableDictionary *disabledApps = [[self getDisabledApps] mutableCopy];
     if (disabled) {
         [disabledApps setObject:localizedName forKey:bundleIdentifier];
     }
@@ -94,10 +172,28 @@
     [userDefaults setObject:disabledApps forKey:DISABLED_APPS_DEFAULTS_KEY];
 }
 
+- (void)setMoveModifiersToDefault {
+    [self setModifierFlagString:[@[CTRL_KEY, CMD_KEY] componentsJoinedByString:@","] defaultsKey:MOVE_MODIFIER_FLAGS_DEFAULTS_KEY];
+}
+
+- (void)setMoveMouseButtonToDefault {
+    [self setMoveMouseButton:LEFT_MOUSE];
+}
+
+- (void)setResizeModifiersToDefault {
+    [self setModifierFlagString:[@[CTRL_KEY, CMD_KEY] componentsJoinedByString:@","] defaultsKey:RESIZE_MODIFIER_FLAGS_DEFAULTS_KEY];
+}
+
+- (void)setResizeMouseButtonToDefault {
+    [self setResizeMouseButton:RIGHT_MOUSE];
+}
+
 - (void)setToDefaults {
-    [self setModifierFlagString:[@[CTRL_KEY, CMD_KEY] componentsJoinedByString:@","]];
+    [self setMoveModifiersToDefault];
+    [self setResizeModifiersToDefault];
+    [self setResizeMouseButtonToDefault];
+    
     [userDefaults setBool:NO forKey:SHOULD_BRING_WINDOW_TO_FRONT];
-    [userDefaults setBool:NO forKey:SHOULD_MIDDLE_CLICK_RESIZE];
     [userDefaults setObject:[NSDictionary dictionary] forKey:DISABLED_APPS_DEFAULTS_KEY];
 }
 
@@ -142,13 +238,6 @@
 }
 -(void)setShouldBringWindowToFront:(BOOL)bringToFront {
     [userDefaults setBool:bringToFront forKey:SHOULD_BRING_WINDOW_TO_FRONT];
-}
-
--(BOOL)shouldMiddleClickResize {
-    return [userDefaults boolForKey:SHOULD_MIDDLE_CLICK_RESIZE];
-}
--(void)setShouldMiddleClickResize:(BOOL)middleClickResize {
-    [userDefaults setBool:middleClickResize forKey:SHOULD_MIDDLE_CLICK_RESIZE];
 }
 
 @end

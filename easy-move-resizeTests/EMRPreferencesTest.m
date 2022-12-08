@@ -29,7 +29,7 @@
     NSSet *expectedSet = [NSSet setWithArray:@[@"CTRL", @"CMD"]];
     XCTAssertEqualObjects(flagStringSet, expectedSet, "Should contain the expected defaults");
 
-    [preferences setModifierKey:@"CTRL" enabled:NO];
+    [preferences setMoveModifierKey:@"CTRL" enabled:NO];
     flagStringSet = [preferences getFlagStringSet];
     expectedSet = [NSSet setWithArray:@[@"CMD"]];
     XCTAssertEqualObjects(flagStringSet, expectedSet, "Should contain the modified defaults");

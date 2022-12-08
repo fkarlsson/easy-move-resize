@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="19455" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="21507" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="19455"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21507"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -659,41 +659,105 @@
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="a5T-MQ-31B"/>
-                <menuItem title="Alt" id="toO-ef-6Sa">
+                <menuItem title="Move" enabled="NO" id="GJR-in-Bwe">
+                    <attributedString key="attributedTitle"/>
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem title="Left Mouse Button" identifier="Move Left" indentationLevel="1" id="zSj-1e-KCw" userLabel="Move Left Click">
+                    <attributedString key="attributedTitle"/>
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
-                        <action selector="modifierToggle:" target="494" id="gvG-0m-DpJ"/>
+                        <action selector="moveMouseToggle:" target="494" id="45M-vI-X24"/>
                     </connections>
                 </menuItem>
-                <menuItem title="Cmd" id="yMO-nW-fjN">
+                <menuItem title="Right Mouse Button" identifier="Move Right" indentationLevel="1" id="Vla-ER-KwK" userLabel="Move Right Click">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
-                        <action selector="modifierToggle:" target="494" id="HrM-v0-sYh"/>
+                        <action selector="moveMouseToggle:" target="494" id="1QR-j8-kGg"/>
                     </connections>
                 </menuItem>
-                <menuItem title="Ctrl" id="cOd-3Z-1Py">
+                <menuItem title="Middle Mouse Button" identifier="Move Middle" indentationLevel="1" id="c2D-oi-A9i" userLabel="Move Middle Click">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
-                        <action selector="modifierToggle:" target="494" id="niS-3l-sN2"/>
+                        <action selector="moveMouseToggle:" target="494" id="jL6-rT-QM0"/>
                     </connections>
                 </menuItem>
-                <menuItem title="Shift" id="SZL-bI-dng">
+                <menuItem title="Alt" indentationLevel="1" id="toO-ef-6Sa" userLabel="Move Alt">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
-                        <action selector="modifierToggle:" target="494" id="tw0-HJ-yQk"/>
+                        <action selector="moveModifierToggle:" target="494" id="gvG-0m-DpJ"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Cmd" indentationLevel="1" id="yMO-nW-fjN" userLabel="Move Cmd">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="moveModifierToggle:" target="494" id="HrM-v0-sYh"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Ctrl" indentationLevel="1" id="cOd-3Z-1Py" userLabel="Move Ctrl">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="moveModifierToggle:" target="494" id="niS-3l-sN2"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Shift" indentationLevel="1" id="SZL-bI-dng" userLabel="Move Shift">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="moveModifierToggle:" target="494" id="tw0-HJ-yQk"/>
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="CnB-BD-kwb"/>
+                <menuItem title="Resize" enabled="NO" id="w5j-4k-fjK" userLabel="Resize">
+                    <attributedString key="attributedTitle"/>
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem title="Left Mouse Button" identifier="Resize Left" indentationLevel="1" id="0Ak-KP-m4u" userLabel="Resize Left Click">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="resizeMouseToggle:" target="494" id="Zgb-Oc-P6O"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Right Mouse Button" identifier="Resize Right" indentationLevel="1" id="o2I-zS-IZ9" userLabel="Resize Right Click">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="resizeMouseToggle:" target="494" id="zwQ-s7-KVU"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Middle Mouse Button" identifier="Resize Middle" indentationLevel="1" id="eMq-Hi-22p" userLabel="Resize Middle Click">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="resizeMouseToggle:" target="494" id="cmT-eS-gMH"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Alt" indentationLevel="1" id="xJw-aN-vnC" userLabel="Resize Alt">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="resizeModifierToggle:" target="494" id="Dqm-On-XpW"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Cmd" indentationLevel="1" id="gBR-7m-ceD" userLabel="Resize Cmd">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="resizeModifierToggle:" target="494" id="c0O-f4-8VQ"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Ctrl" indentationLevel="1" id="q2p-aa-ULW" userLabel="Resize Ctrl">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="resizeModifierToggle:" target="494" id="vUM-ad-4tw"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Shift" indentationLevel="1" id="NrB-mf-ga2" userLabel="Resize Shift">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="resizeModifierToggle:" target="494" id="2Qb-b0-6Yc"/>
+                    </connections>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="W4m-3P-ype"/>
                 <menuItem title="Bring Window to Front" id="gtC-wv-5bN">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="toggleBringWindowToFront:" target="494" id="utG-yc-4A0"/>
-                    </connections>
-                </menuItem>
-                <menuItem title="Middle Click resize" id="S2R-bI-Azo">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="toggleMiddleClickResize:" target="494" id="gAe-qW-XIr"/>
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="XPE-bb-yrs"/>
@@ -726,15 +790,24 @@
         </menu>
         <customObject id="494" customClass="EMRAppDelegate">
             <connections>
-                <outlet property="altMenu" destination="toO-ef-6Sa" id="nQz-2m-M8b"/>
                 <outlet property="bringWindowFrontMenu" destination="gtC-wv-5bN" id="TDw-e0-RDR"/>
-                <outlet property="cmdMenu" destination="yMO-nW-fjN" id="TRT-4a-jj5"/>
-                <outlet property="ctrlMenu" destination="cOd-3Z-1Py" id="mtX-4X-qya"/>
                 <outlet property="disabledAppsMenu" destination="trL-IE-A9o" id="a5e-LQ-P3b"/>
                 <outlet property="disabledMenu" destination="Q0w-G0-Ppy" id="D3v-HP-HjG"/>
                 <outlet property="lastAppMenu" destination="ZKn-HI-Yq4" id="aO7-eG-bLr"/>
-                <outlet property="middleClickResizeMenu" destination="S2R-bI-Azo" id="c8V-7R-1QY"/>
-                <outlet property="shiftMenu" destination="SZL-bI-dng" id="YZk-pM-c3k"/>
+                <outlet property="moveAltMenu" destination="toO-ef-6Sa" id="nQz-2m-M8b"/>
+                <outlet property="moveCmdMenu" destination="yMO-nW-fjN" id="TRT-4a-jj5"/>
+                <outlet property="moveCtrlMenu" destination="cOd-3Z-1Py" id="mtX-4X-qya"/>
+                <outlet property="moveLeftMouseButtonMenu" destination="zSj-1e-KCw" id="gBF-7Y-zoO"/>
+                <outlet property="moveMiddleMouseButtonMenu" destination="c2D-oi-A9i" id="uYW-Oh-Z5w"/>
+                <outlet property="moveRightMouseButtonMenu" destination="Vla-ER-KwK" id="2pk-md-56R"/>
+                <outlet property="moveShiftMenu" destination="SZL-bI-dng" id="YZk-pM-c3k"/>
+                <outlet property="resizeAltMenu" destination="xJw-aN-vnC" id="exi-lJ-99k"/>
+                <outlet property="resizeCmdMenu" destination="gBR-7m-ceD" id="NSv-q2-H4n"/>
+                <outlet property="resizeCtrlMenu" destination="q2p-aa-ULW" id="LuF-OW-8J3"/>
+                <outlet property="resizeLeftMouseButtonMenu" destination="0Ak-KP-m4u" id="L9q-kL-7Bk"/>
+                <outlet property="resizeMiddleMouseButtonMenu" destination="eMq-Hi-22p" id="5Ag-4M-gWw"/>
+                <outlet property="resizeRightMouseButtonMenu" destination="o2I-zS-IZ9" id="MXk-jT-hR3"/>
+                <outlet property="resizeShiftMenu" destination="NrB-mf-ga2" id="5Xd-ph-azf"/>
                 <outlet property="statusMenu" destination="obP-gH-pam" id="YfI-Jt-Lpf"/>
             </connections>
         </customObject>

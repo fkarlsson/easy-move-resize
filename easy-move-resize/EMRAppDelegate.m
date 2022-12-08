@@ -11,6 +11,9 @@
     if (self) {
         NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"userPrefs"];
         preferences = [[EMRPreferences alloc] initWithUserDefaults:userDefaults];
+        
+        moveMouseButtonMenus = [NSArray arrayWithObjects:_moveLeftMouseButtonMenu, _moveRightMouseButtonMenu, _moveMiddleMouseButtonMenu, nil];
+        resizeMouseButtonMenus = [NSArray arrayWithObjects:_resizeLeftMouseButtonMenu, _resizeRightMouseButtonMenu, _resizeMiddleMouseButtonMenu, nil];
     }
     return self;
 }
@@ -18,8 +21,7 @@
 CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, CGEventRef event, void *refcon) {
 
     EMRAppDelegate *ourDelegate = (__bridge EMRAppDelegate*)refcon;
-    int keyModifierFlags = [ourDelegate modifierFlags];
-    bool shouldMiddleClickResize = [ourDelegate shouldMiddleClickResize];
+    int moveKeyModifierFlags = [ourDelegate moveModifierFlags];
     CGEventType resizeModifierDown = kCGEventRightMouseDown;
     CGEventType resizeModifierDragged = kCGEventRightMouseDragged;
     CGEventType resizeModifierUp = kCGEventRightMouseUp;
@@ -29,15 +31,9 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
         return event;
     }
 
-    if (keyModifierFlags == 0) {
+    if (moveKeyModifierFlags == 0) {
         // No modifier keys set. Disable behaviour.
         return event;
-    }
-    
-    if (shouldMiddleClickResize){
-        resizeModifierDown = kCGEventOtherMouseDown;
-        resizeModifierDragged = kCGEventOtherMouseDragged;
-        resizeModifierUp = kCGEventOtherMouseUp;
     }
     
     EMRMoveResize* moveResize = [EMRMoveResize instance];
@@ -49,12 +45,12 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     }
     
     CGEventFlags flags = CGEventGetFlags(event);
-    if ((flags & (keyModifierFlags)) != (keyModifierFlags)) {
+    if ((flags & (moveKeyModifierFlags)) != (moveKeyModifierFlags)) {
         // didn't find our expected modifiers; this event isn't for us
         return event;
     }
 
-    int ignoredKeysMask = (kCGEventFlagMaskShift | kCGEventFlagMaskCommand | kCGEventFlagMaskAlphaShift | kCGEventFlagMaskAlternate | kCGEventFlagMaskControl) ^ keyModifierFlags;
+    int ignoredKeysMask = (kCGEventFlagMaskShift | kCGEventFlagMaskCommand | kCGEventFlagMaskAlphaShift | kCGEventFlagMaskAlternate | kCGEventFlagMaskControl) ^ moveKeyModifierFlags;
     
     if (flags & ignoredKeysMask) {
         // also ignore this event if we've got extra modifiers (i.e. holding down Cmd+Ctrl+Alt should not invoke our action)
@@ -288,7 +284,7 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [self initMenuItems];
 
     // Retrieve the Key press modifier flags to activate move/resize actions.
-    keyModifierFlags = [preferences modifierFlags];
+    moveKeyModifierFlags = [preferences moveModifierFlags];
     
     CFRunLoopSourceRef runLoopSource;
 
@@ -368,45 +364,110 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 }
 
 - (void)initMenuItems {
-    [_altMenu setState:0];
-    [_cmdMenu setState:0];
-    [_ctrlMenu setState:0];
-    [_shiftMenu setState:0];
+    [_moveLeftMouseButtonMenu setState:0];
+    [_moveRightMouseButtonMenu setState:0];
+    [_moveMiddleMouseButtonMenu setState:0];
+    [_moveAltMenu setState:0];
+    [_moveCmdMenu setState:0];
+    [_moveCtrlMenu setState:0];
+    [_moveShiftMenu setState:0];
+    
+    [_resizeLeftMouseButtonMenu setState:0];
+    [_resizeRightMouseButtonMenu setState:0];
+    [_resizeMiddleMouseButtonMenu setState:0];
+    [_resizeAltMenu setState:0];
+    [_resizeCmdMenu setState:0];
+    [_resizeCtrlMenu setState:0];
+    [_resizeShiftMenu setState:0];
+    
     [_disabledMenu setState:0];
     [_bringWindowFrontMenu setState:0];
-    [_middleClickResizeMenu setState:0];
 
     bool shouldBringWindowToFront = [preferences shouldBringWindowToFront];
-    bool shouldMiddleClickResize = [preferences shouldMiddleClickResize];
 
     if(shouldBringWindowToFront){
         [_bringWindowFrontMenu setState:1];
     }
-    if(shouldMiddleClickResize){
-        [_middleClickResizeMenu setState:1];
+    
+    NSString *moveMouseButton = [preferences getMoveMouseButton];
+    if ([moveMouseButton isEqualToString:LEFT_MOUSE]) {
+        [_moveLeftMouseButtonMenu setState:1];
+    }
+    if ([moveMouseButton isEqualToString:RIGHT_MOUSE]) {
+        [_moveRightMouseButtonMenu setState:1];
+    }
+    if ([moveMouseButton isEqualToString:MIDDLE_MOUSE]) {
+        [_moveMiddleMouseButtonMenu setState:1];
     }
     
-    NSSet* flags = [preferences getFlagStringSet];
-    if ([flags containsObject:ALT_KEY]) {
-        [_altMenu setState:1];
+    NSSet* moveFlags = [preferences getMoveFlagStringSet];
+    if ([moveFlags containsObject:ALT_KEY]) {
+        [_moveAltMenu setState:1];
     }
-    if ([flags containsObject:CMD_KEY]) {
-        [_cmdMenu setState:1];
+    if ([moveFlags containsObject:CMD_KEY]) {
+        [_moveCmdMenu setState:1];
     }
-    if ([flags containsObject:CTRL_KEY]) {
-        [_ctrlMenu setState:1];
+    if ([moveFlags containsObject:CTRL_KEY]) {
+        [_moveCtrlMenu setState:1];
     }
-    if ([flags containsObject:SHIFT_KEY]) {
-        [_shiftMenu setState:1];
+    if ([moveFlags containsObject:SHIFT_KEY]) {
+        [_moveShiftMenu setState:1];
+    }
+    
+    NSString *resizeMouseButton = [preferences getResizeMouseButton];
+    if ([resizeMouseButton isEqualToString:LEFT_MOUSE]) {
+        [_resizeLeftMouseButtonMenu setState:1];
+    }
+    if ([resizeMouseButton isEqualToString:RIGHT_MOUSE]) {
+        [_resizeRightMouseButtonMenu setState:1];
+    }
+    if ([resizeMouseButton isEqualToString:MIDDLE_MOUSE]) {
+        [_resizeMiddleMouseButtonMenu setState:1];
+    }
+    NSSet* resizeFlags = [preferences getResizeFlagStringSet];
+    if ([resizeFlags containsObject:ALT_KEY]) {
+        [_resizeAltMenu setState:1];
+    }
+    if ([resizeFlags containsObject:CMD_KEY]) {
+        [_resizeCmdMenu setState:1];
+    }
+    if ([resizeFlags containsObject:CTRL_KEY]) {
+        [_resizeCtrlMenu setState:1];
+    }
+    if ([resizeFlags containsObject:SHIFT_KEY]) {
+        [_resizeShiftMenu setState:1];
     }
 }
-
-- (IBAction)modifierToggle:(id)sender {
+- (IBAction)moveMouseToggle:(id)sender {
     NSMenuItem *menu = (NSMenuItem*)sender;
     BOOL newState = ![menu state];
     [menu setState:newState];
-    [preferences setModifierKey:[menu title] enabled:newState];
-    keyModifierFlags = [preferences modifierFlags];
+    
+    [preferences setMoveMouseButton:[menu identifier]];
+}
+
+- (IBAction)moveModifierToggle:(id)sender {
+    NSMenuItem *menu = (NSMenuItem*)sender;
+    BOOL newState = ![menu state];
+    [menu setState:newState];
+    [preferences setMoveModifierKey:[menu title] enabled:newState];
+    moveKeyModifierFlags = [preferences moveModifierFlags];
+}
+
+- (IBAction)resizeMouseToggle:(id)sender {
+    NSMenuItem *menu = (NSMenuItem*)sender;
+    BOOL newState = ![menu state];
+    [menu setState:newState];
+    
+    [preferences setResizeMouseButton:[menu identifier]];
+}
+
+- (IBAction)resizeModifierToggle:(id)sender {
+    NSMenuItem *menu = (NSMenuItem*)sender;
+    BOOL newState = ![menu state];
+    [menu setState:newState];
+    [preferences setResizeModifierKey:[menu title] enabled:newState];
+    resizeKeyModifierFlags = [preferences resizeModifierFlags];
 }
 
 - (IBAction)resetToDefaults:(id)sender {
@@ -415,7 +476,8 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [self initMenuItems];
     [self setMenusEnabled:YES];
     [self enableRunLoopSource:moveResize];
-    keyModifierFlags = [preferences modifierFlags];
+    moveKeyModifierFlags = [preferences moveModifierFlags];
+    resizeKeyModifierFlags = [preferences resizeModifierFlags];
 }
 
 - (IBAction)toggleBringWindowToFront:(id)sender {
@@ -423,13 +485,6 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     BOOL newState = ![menu state];
     [menu setState:newState];
     [preferences setShouldBringWindowToFront:newState];
-}
-
-- (IBAction)toggleMiddleClickResize:(id)sender {
-    NSMenuItem *menu = (NSMenuItem*)sender;
-    BOOL newState = ![menu state];
-    [menu setState:newState];
-    [preferences setShouldMiddleClickResize:newState];
 }
 
 - (IBAction)toggleDisabled:(id)sender {
@@ -463,9 +518,14 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
     [self reconstructDisabledAppsSubmenu];
 }
 
-- (int)modifierFlags {
-    return keyModifierFlags;
+- (int)moveModifierFlags {
+    return moveKeyModifierFlags;
 }
+
+- (int)resizeModifierFlags {
+    return resizeKeyModifierFlags;
+}
+
 - (void) setMostRecentApp:(NSRunningApplication*)app {
     lastApp = app;
     [_lastAppMenu setTitle:[NSString stringWithFormat:@"Disable for %@", [app localizedName]]];
@@ -477,15 +537,24 @@ CGEventRef myCGEventCallback(CGEventTapProxy __unused proxy, CGEventType type, C
 -(BOOL)shouldBringWindowToFront {
     return [preferences shouldBringWindowToFront];
 }
--(BOOL)shouldMiddleClickResize {
-    return [preferences shouldMiddleClickResize];
-}
 
 - (void)setMenusEnabled:(BOOL)enabled {
-    [_altMenu setEnabled:enabled];
-    [_cmdMenu setEnabled:enabled];
-    [_ctrlMenu setEnabled:enabled];
-    [_shiftMenu setEnabled:enabled];
+    [_moveLeftMouseButtonMenu setEnabled:enabled];
+    [_moveRightMouseButtonMenu setEnabled:enabled];
+    [_moveMiddleMouseButtonMenu setEnabled:enabled];
+    [_moveAltMenu setEnabled:enabled];
+    [_moveCmdMenu setEnabled:enabled];
+    [_moveCtrlMenu setEnabled:enabled];
+    [_moveShiftMenu setEnabled:enabled];
+    
+    [_resizeLeftMouseButtonMenu setEnabled:enabled];
+    [_resizeRightMouseButtonMenu setEnabled:enabled];
+    [_resizeMiddleMouseButtonMenu setEnabled:enabled];
+    [_resizeAltMenu setEnabled:enabled];
+    [_resizeCmdMenu setEnabled:enabled];
+    [_resizeCtrlMenu setEnabled:enabled];
+    [_resizeShiftMenu setEnabled:enabled];
+    
     [_bringWindowFrontMenu setEnabled:enabled];
     [_middleClickResizeMenu setEnabled:enabled];
 }
